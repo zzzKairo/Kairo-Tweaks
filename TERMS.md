@@ -1,4 +1,3 @@
-
 # WinTweaks Pro – Distribution Terms
 
 Last Updated: July 2, 2026
@@ -6,6 +5,12 @@ Last Updated: July 2, 2026
 These Distribution Terms apply to WinTweaks Pro and any related files, source code, assets, releases, and content associated with the project.
 
 By downloading, accessing, using, sharing, or distributing WinTweaks Pro, you agree to these terms.
+
+# Important Notice
+
+Users should only download WinTweaks Pro from the official GitHub repository releases page.
+
+Any modified, reuploaded, or unofficial versions of WinTweaks Pro may contain changes or unsafe code and are not controlled by the developer.
 
 ## Ownership
 
@@ -95,9 +100,3 @@ The developer states that:
 * The software is not intended to behave as a virus, trojan, or unauthorised remote access tool.
 * The application is not designed to function as a potentially unwanted program (PUA).
 * No official release is intentionally created to damage, steal, or misuse user data or systems.
-
-## Important Notice
-
-Users should only download WinTweaks Pro from the official GitHub repository releases page.
-
-Any modified, reuploaded, or unofficial versions of WinTweaks Pro may contain changes or unsafe code and are not controlled by the developer.
