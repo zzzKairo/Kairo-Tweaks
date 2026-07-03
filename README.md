@@ -1,5 +1,9 @@
-# WinTweaksPro
-Windows Multi-Purpose Utility
+# WinTweaks Pro
+A multi-purpose Windows utility tool.
+
+Includes:
+- Macro creation (keyboard and mouse support, cross-application compatibility)
+- Windows system tweaking and optimisation tools
 
 ## Source Code
 The source code for Kairo Tweaks is currently private and is not publicly available. (Will become available in the future)
