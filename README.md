@@ -1,3 +1,4 @@
+[Join our Discord](https://discord.gg/UuvV87K97g)
 # Kairo Tweaks 
 A multi-purpose Windows utility tool.
 
