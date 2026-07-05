@@ -1,4 +1,4 @@
-# WinTweaks Pro
+# Kairo Tweaks 
 A multi-purpose Windows utility tool.
 
 Includes:
