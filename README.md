@@ -78,12 +78,12 @@ Usage and distribution of Kairo Tweaks are subject to the [Distribution Terms](h
 - Startup Manager (enable/disable startup entries without deleting them)
 - Services Viewer (view, filter, stop, or disable individual services)
 - Profiles (snapshot active tweaks and reload them later)
-- Per-page drift badges for reverted tweaks
 - Macro Editor
   - Record, edit, and trigger keyboard + mouse macros
   - Configurable trigger, activation type, and conditional "hold to activate" trigger
   - Playback speed, repeat mode/count, and delay controls
   - Key combination (Ctrl+Alt+Enter) to hide Macro Editor nav category
+  - Autoclickers (can do up to 2,800 clicks per second)
 - Power Plan Editor (custom power settings across multiple categories via verified powercfg GUIDs)
 - Border Reveal glow effect 
 - Theming system (multiple themes, including a seasonal "Christmas" particle effect option with adjustable amount/frequency/speed)
