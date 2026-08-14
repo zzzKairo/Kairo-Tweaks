@@ -7,7 +7,7 @@ Includes:
 - Windows system tweaking and optimisation tools
 
 ## Source Code
-The source code for Kairo Tweaks is currently private and is not publicly available. (Will become available in the future)
+The source code for Kairo Tweaks is currently private and is not publicly available.
 
 ## Software Safety and Integrity
 All official Kairo Tweaks releases published in the **Releases** section of the official repository are intended to be safe, legitimate system optimisation tools.
