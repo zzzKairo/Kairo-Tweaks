@@ -53,7 +53,7 @@ Usage and distribution of Kairo Tweaks are subject to the [Distribution Terms](h
   - Security hardening
   - Privacy & telemetry tweaks (advertising ID, tracking, SIUF, CDM, background apps, search, consent store, WER, deep telemetry)
   - Customisation (Explorer/UI tweaks, dark mode, file extensions, hidden files, task view, taskbar search visibility)
-  - AI & Copilot lockdown (Copilot, Recall, Click-to-Do, AI Agents, generative AI, Paint AI, Edge AI/Copilot, Office 365 Copilot, keyboard input insights, WSAIFabricSvc)
+  - AI Feature Disable (Copilot, Recall, Click-to-Do, AI Agents, generative AI, Paint AI, Edge AI/Copilot, Office 365 Copilot, keyboard input insights, WSAIFabricSvc)
   - Smart App Control management
   - Hyper-V / Virtual Machine Platform toggle
 ## Gaming tools
