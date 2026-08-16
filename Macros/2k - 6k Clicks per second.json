@@ -1,0 +1,45 @@
+{
+  "Id": "3ead283d547a4afe8735721453519f28",
+  "Name": "2000 - 6000 Clicks Per Second",
+  "Actions": [
+    {
+      "Type": "MouseDown",
+      "Key": null,
+      "MouseButton": "Left",
+      "DeltaX": 0,
+      "DeltaY": 0,
+      "WheelDelta": 0,
+      "DelayMsBefore": 1
+    }
+  ],
+  "SubActions": [],
+  "Trigger": {
+    "Keys": [],
+    "MouseButton": "None"
+  },
+  "ActivationGate": {
+    "Keys": [],
+    "MouseButton": "None"
+  },
+  "ForegroundProcessFilter": null,
+  "ActivationType": "Hold",
+  "StopOnRelease": true,
+  "RestartOnRepeat": true,
+  "LoopWhileHeld": true,
+  "RepeatIntervalMs": 0,
+  "PlaybackSpeed": 4,
+  "PlaybackMode": "RunOnce",
+  "RepeatCount": 1,
+  "DelayMode": "Recorded",
+  "FixedDelayMs": 50,
+  "RandomDelayMinMs": 35,
+  "RandomDelayMaxMs": 90,
+  "Enabled": false,
+  "ActivationToggleKey": null,
+  "CustomColorHex": null,
+  "IsPreset": false,
+  "GroupId": null,
+  "OrderIndex": 0,
+  "CreatedUtc": "2026-07-16T21:56:55.2069251Z",
+  "ModifiedUtc": "2026-08-16T17:22:30.3913875Z"
+}
