@@ -83,7 +83,7 @@ Usage and distribution of Kairo Tweaks are subject to the [Distribution Terms](h
   - Configurable trigger, activation type, and conditional "hold to activate" trigger
   - Playback speed, repeat mode/count, and delay controls
   - Key combination (Ctrl+Alt+Enter) to hide Macro Editor nav category
-  - Autoclickers (can do up to 2,800 clicks per second)
+  - Autoclickers (can do up to 6800 clicks per second)
 - Power Plan Editor (custom power settings across multiple categories via verified powercfg GUIDs)
 - Border Reveal glow effect 
 - Theming system (multiple themes, including a seasonal "Christmas" particle effect option with adjustable amount/frequency/speed)
