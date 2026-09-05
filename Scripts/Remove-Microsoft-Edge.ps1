@@ -1,14 +1,3 @@
-If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
-    Try {
-        Start-Process PowerShell.exe -ArgumentList ("-NoProfile -ExecutionPolicy Bypass -File `"{0}`"" -f $PSCommandPath) -Verb RunAs
-        Exit
-    }
-    Catch {
-        Write-Host "Failed to run as Administrator. Please rerun with elevated privileges."
-        Exit
-    }
-}
-
 $logFolder = "$env:APPDATA\Kairo Tweaks\LOGS"
 $logFile = "$logFolder\EdgeRemovalLog.txt"
 
@@ -266,6 +255,7 @@ if (`$htm -and `$htm -notlike "*ie_to_edge_stub*") {
     $repairPrincipal = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest
     Register-ScheduledTask -TaskName $repairTaskName -TaskPath "\Kairo Tweaks\" -Action $repairAction -Trigger $repairTrigger -Settings $repairSettings -Principal $repairPrincipal -Force | Out-Null
     Write-Log "Registered OpenWebSearchRepair scheduled task (runs at logon)"
+
 }
 
 function Remove-ChromiumEdge {
