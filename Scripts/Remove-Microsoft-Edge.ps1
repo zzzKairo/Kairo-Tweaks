@@ -142,14 +142,56 @@ function Remove-EdgeShortcuts {
     Write-Log "Removed $removedCount Edge shortcut(s)"
 }
 
+function Get-OrCreateEdgeStub {
+    param([string]$TargetPath)
+
+    if (Test-Path $TargetPath) { return $true }
+
+    $realCandidates = @(
+        "$env:WINDIR\SystemApps\Microsoft.MicrosoftEdge_8wekyb3d8bbwe\ie_to_edge_stub.exe",
+        "$env:ProgramData\ie_to_edge_stub.exe",
+        "$env:Public\ie_to_edge_stub.exe"
+    )
+    foreach ($candidate in $realCandidates) {
+        if (Test-Path $candidate) {
+            Copy-Item $candidate $TargetPath -Force -ErrorAction SilentlyContinue
+            if (Test-Path $TargetPath) {
+                Write-Log "Sourced real ie_to_edge_stub.exe from $candidate"
+                return $true
+            }
+        }
+    }
+
+    $search = Get-ChildItem "${env:ProgramFiles(x86)}\Microsoft\Edge" -Filter "ie_to_edge_stub.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($search) {
+        Copy-Item $search.FullName $TargetPath -Force -ErrorAction SilentlyContinue
+        if (Test-Path $TargetPath) {
+            Write-Log "Sourced real ie_to_edge_stub.exe from $($search.FullName)"
+            return $true
+        }
+    }
+
+    # Nothing real left on disk (legacy Edge package already fully gone too).
+    # IFEO's Debugger redirect matches purely on the executable's filename,
+    # not its contents or signature, so any always-present harmless system
+    # exe works once renamed. systray.exe has shipped in System32 since XP.
+    Copy-Item "$env:WINDIR\System32\systray.exe" $TargetPath -Force -ErrorAction SilentlyContinue
+    if (Test-Path $TargetPath) {
+        Write-Log "No real ie_to_edge_stub.exe found on this machine - using systray.exe as the IFEO filename stand-in"
+        return $true
+    }
+
+    Write-Log "ERROR: Could not create ie_to_edge_stub.exe stub by any method"
+    return $false
+}
+
 function Install-EdgeProtocolRedirect {
     Write-Log "Installing Edge protocol redirect using OpenWebSearch"
     $scriptsDir = "C:\ProgramData\Kairo Tweaks\OpenWebSearch"
     New-Item -ItemType Directory -Path $scriptsDir -Force -ErrorAction SilentlyContinue | Out-Null
 
     $stubTargetPath = "$scriptsDir\ie_to_edge_stub.exe"
-    if (!(Test-Path $stubTargetPath)) {
-        Write-Log "Warning: ie_to_edge_stub.exe not found at $stubTargetPath (should have been copied before Edge removal)"
+    if (!(Get-OrCreateEdgeStub -TargetPath $stubTargetPath)) {
         return
     }
 
@@ -470,40 +512,9 @@ $legacyInstalled = Test-LegacyEdgeInstalled
 $chromiumInstalled = Test-ChromiumEdgeInstalled
 
 $removedSomething = $false
-$stubPath = $null
 
 if (-not $legacyInstalled -and -not $chromiumInstalled) {
     Write-Log "No Edge installations detected. Skipping removal."
-}
-
-if ($chromiumInstalled) {
-    Write-Log "Chromium Edge detected. Finding ie_to_edge_stub.exe before removal."
-
-    $stubLocations = @("$env:ProgramData\ie_to_edge_stub.exe", "$env:Public\ie_to_edge_stub.exe")
-    foreach ($loc in $stubLocations) {
-        if (Test-Path $loc) {
-            $stubPath = $loc
-            Write-Log "Found stub at: $loc"
-            break
-        }
-    }
-
-    if (!$stubPath) {
-        $stubSearch = Get-ChildItem "${env:ProgramFiles(x86)}\Microsoft\Edge" -Filter "ie_to_edge_stub.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
-        if ($stubSearch) {
-            $stubPath = $stubSearch.FullName
-            Write-Log "Found stub at: $stubPath"
-        } else {
-            Write-Log "ie_to_edge_stub.exe not found in any location"
-        }
-    }
-
-    if ($stubPath) {
-        $scriptsDir = "C:\ProgramData\Kairo Tweaks\OpenWebSearch"
-        New-Item -ItemType Directory -Path $scriptsDir -Force -ErrorAction SilentlyContinue | Out-Null
-        Copy-Item $stubPath "$scriptsDir\ie_to_edge_stub.exe" -Force -ErrorAction SilentlyContinue
-        Write-Log "Copied ie_to_edge_stub.exe to $scriptsDir before Edge removal"
-    }
 }
 
 if ($legacyInstalled) {
@@ -537,9 +548,13 @@ if ($removedSomething) {
     Remove-AdditionalEdgeFolders
 }
 
-$stubPath = "C:\ProgramData\Kairo Tweaks\OpenWebSearch\ie_to_edge_stub.exe"
-if (Test-Path $stubPath) {
-    reg.exe add "HKCR\MSEdgeHTM\shell\open\command" /f /ve /d """`"$stubPath`""" %1" 2>&1 | Out-Null
+$scriptsDir = "C:\ProgramData\Kairo Tweaks\OpenWebSearch"
+New-Item -ItemType Directory -Path $scriptsDir -Force -ErrorAction SilentlyContinue | Out-Null
+$stubTargetPath = "$scriptsDir\ie_to_edge_stub.exe"
+Get-OrCreateEdgeStub -TargetPath $stubTargetPath | Out-Null
+
+if (Test-Path $stubTargetPath) {
+    reg.exe add "HKCR\MSEdgeHTM\shell\open\command" /f /ve /d """`"$stubTargetPath`""" %1" 2>&1 | Out-Null
     Write-Log "Redirected MSEdgeHTM to ie_to_edge_stub.exe"
 } else {
     reg.exe delete "HKCR\MSEdgeHTM" /f 2>&1 | Out-Null
