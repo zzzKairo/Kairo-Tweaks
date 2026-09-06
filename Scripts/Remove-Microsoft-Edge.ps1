@@ -122,4 +122,4 @@ if (Test-EdgeStillPresent) {
 } else {
     Write-Status "Edge removal verified: no msedge.exe or Edge Stable package detected."
 }
-Write-Status "DONE: Edge removal attempted. Restart recommended."
+Write-Status "DONE."
