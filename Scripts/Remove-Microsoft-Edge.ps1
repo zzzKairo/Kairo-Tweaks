@@ -17,26 +17,33 @@ function Write-CleanupLog {
     Write-Host $Message
 }
 
+function Resolve-HkcrPsPath {
+    param([string]$KeyPath)
+
+    $suffix = $KeyPath -replace '^HKCR\\?', ''
+    if ($suffix) { "Registry::HKEY_CLASSES_ROOT\$suffix" } else { 'Registry::HKEY_CLASSES_ROOT' }
+}
 
 function Set-RegistryDefaultValue {
     param([string]$KeyPath, [string]$Data)
-    $cmd = "reg.exe add `"$KeyPath`" /f /ve /d `"$Data`""
-    cmd.exe /c $cmd | Out-Null
-    if ($LASTEXITCODE -ne 0) {
-        Write-CleanupLog "WARNING: failed to set default value for '$KeyPath' (exit $LASTEXITCODE)"
+
+    $psPath = Resolve-HkcrPsPath -KeyPath $KeyPath
+    try {
+        if (-not (Test-Path $psPath)) { New-Item -Path $psPath -Force | Out-Null }
+        Set-Item -Path $psPath -Value $Data -Force -ErrorAction Stop
+    } catch {
+        Write-CleanupLog "WARNING: failed to set default value for '$KeyPath': $($_.Exception.Message)"
     }
 }
 
 function Set-RegistryStringValue {
     param([string]$KeyPath, [string]$ValueName, [string]$Data = '')
-    if ([string]::IsNullOrEmpty($Data)) {
-        $cmd = "reg.exe add `"$KeyPath`" /f /v `"$ValueName`" /d `"`""
-    } else {
-        $cmd = "reg.exe add `"$KeyPath`" /f /v `"$ValueName`" /d `"$Data`""
-    }
-    cmd.exe /c $cmd | Out-Null
-    if ($LASTEXITCODE -ne 0) {
-        Write-CleanupLog "WARNING: failed to set '$ValueName' on '$KeyPath' (exit $LASTEXITCODE)"
+    $psPath = Resolve-HkcrPsPath -KeyPath $KeyPath
+    try {
+        if (-not (Test-Path $psPath)) { New-Item -Path $psPath -Force | Out-Null }
+        New-ItemProperty -Path $psPath -Name $ValueName -Value $Data -PropertyType String -Force -ErrorAction Stop | Out-Null
+    } catch {
+        Write-CleanupLog "WARNING: failed to set '$ValueName' on '$KeyPath': $($_.Exception.Message)"
     }
 }
 
@@ -286,16 +293,19 @@ if (-not (Test-Path $bridge)) { exit }
 if (-not (Test-Path $handler)) { exit }
 
 $expectedProtocolCmd = '"' + $bridge + '" %1'
-$currentProtocolCmd = (Get-ItemProperty 'Registry::HKEY_CLASSES_ROOT\microsoft-edge\shell\open\command' -ErrorAction SilentlyContinue).'(default)'
+
+$protocolPsPath = 'Registry::HKEY_CLASSES_ROOT\microsoft-edge\shell\open\command'
+$currentProtocolCmd = (Get-ItemProperty $protocolPsPath -ErrorAction SilentlyContinue).'(default)'
 if ($currentProtocolCmd -ne $expectedProtocolCmd) {
-    $cmd1 = "reg.exe add `"HKCR\microsoft-edge\shell\open\command`" /f /ve /d `"$expectedProtocolCmd`""
-    cmd.exe /c $cmd1 | Out-Null
+    if (-not (Test-Path $protocolPsPath)) { New-Item -Path $protocolPsPath -Force | Out-Null }
+    Set-Item -Path $protocolPsPath -Value $expectedProtocolCmd -Force
 }
 
-$currentHtmCmd = (Get-ItemProperty 'Registry::HKEY_CLASSES_ROOT\MSEdgeHTM\shell\open\command' -ErrorAction SilentlyContinue).'(default)'
+$htmPsPath = 'Registry::HKEY_CLASSES_ROOT\MSEdgeHTM\shell\open\command'
+$currentHtmCmd = (Get-ItemProperty $htmPsPath -ErrorAction SilentlyContinue).'(default)'
 if ($currentHtmCmd -ne $expectedProtocolCmd) {
-    $cmd2 = "reg.exe add `"HKCR\MSEdgeHTM\shell\open\command`" /f /ve /d `"$expectedProtocolCmd`""
-    cmd.exe /c $cmd2 | Out-Null
+    if (-not (Test-Path $htmPsPath)) { New-Item -Path $htmPsPath -Force | Out-Null }
+    Set-Item -Path $htmPsPath -Value $expectedProtocolCmd -Force
 }
 '@
 
@@ -320,7 +330,6 @@ function Install-EdgeLinkBridge {
     New-Item -Path $ifeoKey -Force -ErrorAction SilentlyContinue | Out-Null
     Set-ItemProperty -Path $ifeoKey -Name 'Debugger' -Value $debuggerCommand -Force
 
-    # --- fixed reg.exe calls (see Set-RegistryDefaultValue / Set-RegistryStringValue above) ---
     Set-RegistryDefaultValue -KeyPath 'HKCR\microsoft-edge' -Data 'URL:microsoft-edge'
     Set-RegistryStringValue  -KeyPath 'HKCR\microsoft-edge' -ValueName 'URL Protocol' -Data ''
     Set-RegistryDefaultValue -KeyPath 'HKCR\microsoft-edge\shell\open\command' -Data "`"$bridgeExe`" %1"
