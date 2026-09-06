@@ -1,4 +1,4 @@
-Write-Status "=== EDGE REMOVAL (CONFIRMED) ==="
+Write-Status "EDGE REMOVAL"
 
 function Stop-EdgeProcs {
     'MicrosoftEdgeUpdate','WidgetService','Widgets','msedge','msedgewebview2' | ForEach-Object {
