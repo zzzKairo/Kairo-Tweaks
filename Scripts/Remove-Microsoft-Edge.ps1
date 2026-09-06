@@ -17,6 +17,29 @@ function Write-CleanupLog {
     Write-Host $Message
 }
 
+
+function Set-RegistryDefaultValue {
+    param([string]$KeyPath, [string]$Data)
+    $cmd = "reg.exe add `"$KeyPath`" /f /ve /d `"$Data`""
+    cmd.exe /c $cmd | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        Write-CleanupLog "WARNING: failed to set default value for '$KeyPath' (exit $LASTEXITCODE)"
+    }
+}
+
+function Set-RegistryStringValue {
+    param([string]$KeyPath, [string]$ValueName, [string]$Data = '')
+    if ([string]::IsNullOrEmpty($Data)) {
+        $cmd = "reg.exe add `"$KeyPath`" /f /v `"$ValueName`" /d `"`""
+    } else {
+        $cmd = "reg.exe add `"$KeyPath`" /f /v `"$ValueName`" /d `"$Data`""
+    }
+    cmd.exe /c $cmd | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        Write-CleanupLog "WARNING: failed to set '$ValueName' on '$KeyPath' (exit $LASTEXITCODE)"
+    }
+}
+
 function Get-LegacyEdgePackageName {
     Get-ChildItem 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\Packages' -Name -ErrorAction SilentlyContinue |
         Where-Object { $_ -like 'Microsoft-Windows-Internet-Browser-Package~*' } |
@@ -265,12 +288,14 @@ if (-not (Test-Path $handler)) { exit }
 $expectedProtocolCmd = '"' + $bridge + '" %1'
 $currentProtocolCmd = (Get-ItemProperty 'Registry::HKEY_CLASSES_ROOT\microsoft-edge\shell\open\command' -ErrorAction SilentlyContinue).'(default)'
 if ($currentProtocolCmd -ne $expectedProtocolCmd) {
-    reg.exe add "HKCR\microsoft-edge\shell\open\command" /f /ve /d $expectedProtocolCmd | Out-Null
+    $cmd1 = "reg.exe add `"HKCR\microsoft-edge\shell\open\command`" /f /ve /d `"$expectedProtocolCmd`""
+    cmd.exe /c $cmd1 | Out-Null
 }
 
 $currentHtmCmd = (Get-ItemProperty 'Registry::HKEY_CLASSES_ROOT\MSEdgeHTM\shell\open\command' -ErrorAction SilentlyContinue).'(default)'
 if ($currentHtmCmd -ne $expectedProtocolCmd) {
-    reg.exe add "HKCR\MSEdgeHTM\shell\open\command" /f /ve /d $expectedProtocolCmd | Out-Null
+    $cmd2 = "reg.exe add `"HKCR\MSEdgeHTM\shell\open\command`" /f /ve /d `"$expectedProtocolCmd`""
+    cmd.exe /c $cmd2 | Out-Null
 }
 '@
 
@@ -295,10 +320,12 @@ function Install-EdgeLinkBridge {
     New-Item -Path $ifeoKey -Force -ErrorAction SilentlyContinue | Out-Null
     Set-ItemProperty -Path $ifeoKey -Name 'Debugger' -Value $debuggerCommand -Force
 
-    reg.exe add 'HKCR\microsoft-edge' /f /ve /d 'URL:microsoft-edge' | Out-Null
-    reg.exe add 'HKCR\microsoft-edge' /f /v 'URL Protocol' /d '' | Out-Null
-    reg.exe add 'HKCR\microsoft-edge\shell\open\command' /f /ve /d "`"$bridgeExe`" %1" | Out-Null
-    reg.exe add 'HKCR\MSEdgeHTM\shell\open\command' /f /ve /d "`"$bridgeExe`" %1" | Out-Null
+    # --- fixed reg.exe calls (see Set-RegistryDefaultValue / Set-RegistryStringValue above) ---
+    Set-RegistryDefaultValue -KeyPath 'HKCR\microsoft-edge' -Data 'URL:microsoft-edge'
+    Set-RegistryStringValue  -KeyPath 'HKCR\microsoft-edge' -ValueName 'URL Protocol' -Data ''
+    Set-RegistryDefaultValue -KeyPath 'HKCR\microsoft-edge\shell\open\command' -Data "`"$bridgeExe`" %1"
+    Set-RegistryDefaultValue -KeyPath 'HKCR\MSEdgeHTM\shell\open\command' -Data "`"$bridgeExe`" %1"
+
     reg.exe delete 'HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe' /f 2>$null | Out-Null
 
     $repairScriptPath = Join-Path $Script:BridgeDir 'RepairAssociations.ps1'
