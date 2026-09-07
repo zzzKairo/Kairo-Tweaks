@@ -1,4 +1,3 @@
-# ── adv_edge
 Write-Status "=== EDGE REMOVAL (CONFIRMED) ==="
 function Stop-EdgeProcs {
     'MicrosoftEdgeUpdate','WidgetService','Widgets','msedge','msedgewebview2' | ForEach-Object {
