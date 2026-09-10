@@ -85,7 +85,6 @@ Usage and distribution of Kairo Tweaks are subject to the [Distribution Terms](h
   - Key combination (Ctrl+Alt+Enter) to hide Macro Editor nav category
   - Autoclickers (can do up to 6800 clicks per second)
 - Power Plan Editor (custom power settings across multiple categories via verified powercfg GUIDs)
-- Border Reveal glow effect 
 - Theming system (multiple themes, including a seasonal "Christmas" particle effect option with adjustable amount/frequency/speed)
 - In-app auto-updater (GitHub release checking)
 - Window snap/unsnap edge-docking support
